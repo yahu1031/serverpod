@@ -31,6 +31,71 @@ class EndpointDefinition {
     required this.fileName,
     required this.subDir,
   });
+
+  Map<String, dynamic> toJson() {
+    var mainDocsList = documentationComment
+        ?.replaceAll('///', '')
+        .replaceAll(RegExp(r'[\[\]]'), '')
+        .replaceAll(RegExp(r'[*]'), '')
+        .replaceAll('  ', ' ')
+        .trim()
+        .split('\n\n')
+        .toList();
+    var mainModifiedList = <String>[];
+    for (String list in mainDocsList ?? []) {
+      list = list.trim();
+      mainModifiedList.add(list);
+    }
+    return {
+      'name': name,
+      'documentationComment': mainModifiedList,
+      'className': className,
+      'fileName': fileName,
+      'methods': methods.map((e) {
+        var docsList = e.documentationComment
+            ?.replaceAll('///', '')
+            .replaceAll(RegExp(r'[\[\]]'), '')
+            .replaceAll(RegExp(r'[*]'), '')
+            .replaceAll('  ', ' ')
+            .trim()
+            .split('\n\n')
+            .toList();
+        var modifiedList = <String>[];
+        for (String list in docsList ?? []) {
+          list = list.trim();
+          modifiedList.add(list);
+        }
+        return {
+          'name': e.name,
+          'requestType': 'POST',
+          'documentationComment': modifiedList,
+          'returnType': e.returnType.className,
+          'parameters': e.parameters
+              .map((e) => {
+                    'name': e.name,
+                    'type': e.type.className,
+                    'required': e.required,
+                  })
+              .toList(),
+          'parametersPositional': e.parametersPositional
+              .map((e) => {
+                    'name': e.name,
+                    'type': e.type.className,
+                    'required': e.required,
+                  })
+              .toList(),
+          'parametersNamed': e.parametersNamed.map((e) {
+            return {
+              'name': e.name,
+              'type': e.type.className,
+              'required': e.required,
+            };
+          }).toList(),
+        };
+      }).toList(),
+      'subDir': subDir,
+    };
+  }
 }
 
 class MethodDefinition {

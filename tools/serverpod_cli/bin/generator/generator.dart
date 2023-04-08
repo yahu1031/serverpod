@@ -3,17 +3,18 @@ import 'package:dart_style/dart_style.dart';
 
 import 'class_analyzer.dart';
 import 'class_generator.dart';
+import 'code_analysis_collector.dart';
 import 'code_cleaner.dart';
 import 'config.dart';
 import 'protocol_analyzer.dart';
 import 'protocol_generator.dart';
-import 'code_analysis_collector.dart';
 
 Future<void> performGenerate({
   required bool verbose,
   bool dartFormat = true,
   bool requestNewAnalyzer = true,
   String? changedFile,
+  bool exportEndpoints = false,
 }) async {
   if (!config.load()) return;
 
@@ -52,6 +53,13 @@ Future<void> performGenerate({
 
   if (verbose) {
     print('Generating classes.');
+  }
+  if (exportEndpoints) {
+    performExportEndpoints(
+      verbose: verbose,
+      protocolDefinition: protocolDefinition,
+    );
+    return;
   }
   performGenerateClasses(
     verbose: verbose,

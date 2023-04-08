@@ -10,6 +10,16 @@ import 'generator.dart';
 import 'protocol_definition.dart';
 import 'protocol_generator_dart.dart';
 
+bool performExportEndpoints(
+    {required bool verbose,
+    required ProtocolDefinition protocolDefinition}) {
+  var generator = ProtocolGeneratorDart(protocolDefinition: protocolDefinition);
+  if (verbose) print('Generating client endpoints');
+  var protocol = generator.exportEndpoints;
+  if (verbose) print(protocol);
+  return protocol;
+}
+
 Future<void> performGenerateProtocol({
   required bool verbose,
   required ProtocolDefinition protocolDefinition,

@@ -1,4 +1,8 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:code_builder/code_builder.dart';
+import 'package:path/path.dart' as p;
 import 'package:recase/recase.dart';
 
 import 'class_generator_dart.dart';
@@ -9,6 +13,43 @@ import 'protocol_generator.dart';
 class ProtocolGeneratorDart extends ProtocolGenerator {
   ProtocolGeneratorDart({required ProtocolDefinition protocolDefinition})
       : super(protocolDefinition: protocolDefinition);
+
+  bool get exportEndpoints {
+    try {
+      var endpointsMap = <String, Map<String, dynamic>>{};
+      var endpointsJsonPath = p.join('.', 'endpoints.json');
+      var defaultDataTypes = <String, String>{
+        'int': 'int',
+        'double': 'double',
+        'bool': 'bool',
+        'String': 'String',
+        'DateTime': 'DateTime',
+        'List': 'List',
+        'Map': 'Map',
+        'enum': 'enum',
+        'dynamic': 'dynamic',
+      };
+      for (var endpt in protocolDefinition.endpoints) {
+        // for(var paramType in endpt.methods) {
+        //   for(var param in paramType.parameters) {
+        //     if (!defaultDataTypes.containsKey(param.type)) {
+        //       if (!endpointsMap.containsKey(param.type)) {
+        //         var endpoint = protocolDefinition.endpoints.firstWhere((element) => element.name == param.type.name);
+        //         endpointsMap[param.type.name] = endpoint.toJson();
+        //       }
+        //     }
+        //   }
+        // }
+        endpointsMap[endpt.name] = endpt.toJson();
+      }
+      print('Endpoints JSON saved at $endpointsJsonPath\n');
+      File(endpointsJsonPath).writeAsStringSync(json.encode(endpointsMap));
+      return true;
+    } catch (e) {
+      stderr.write('Failed to write endpoints.json: $e');
+      return false;
+    }
+  }
 
   @override
   Library generateClientEndpointCalls() {

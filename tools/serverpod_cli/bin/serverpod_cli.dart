@@ -18,6 +18,7 @@ import 'util/version.dart';
 
 const cmdCreate = 'create';
 const cmdGenerate = 'generate';
+const cmdExport = 'export-endpoints';
 // const cmdRun = 'run';
 const cmdGeneratePubspecs = 'generate-pubspecs';
 const cmdVersion = 'version';
@@ -144,6 +145,15 @@ Future<void> _main(List<String> args) async {
   // // TODO: Fix Docker management
   // parser.addCommand(cmdRun, runParser);
 
+  var exportParser = ArgParser();
+  exportParser.addFlag(
+    'verbose',
+    abbr: 'v',
+    negatable: false,
+    help: 'Output more detailed information',
+  );
+  parser.addCommand(cmdExport, exportParser);
+
   // "generate-pubspecs"
   var generatePubspecs = ArgParser();
   generatePubspecs.addOption('version', defaultsTo: 'X');
@@ -190,6 +200,14 @@ Future<void> _main(List<String> args) async {
         _analytics.cleanUp();
         return;
       }
+    }
+
+    // Export endpoints command.
+    if (results.command!.name == cmdExport) {
+      var verbose = results.command!['verbose'];
+      await performGenerate(verbose: verbose, exportEndpoints: true);
+      _analytics.cleanUp();
+      return;
     }
 
     // Generate command.
